@@ -1,0 +1,12 @@
+{
+    "name": "NexusVRCharacterModel",
+    "tree": {
+        "$path": "./MainModule.luau",
+        "NexusVRCharacterModel": {
+            "$path": "./src",
+            "Packages": {
+                "$path": "./Packages"
+            }
+        }
+    }
+}

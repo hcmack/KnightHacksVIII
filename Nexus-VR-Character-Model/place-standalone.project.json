@@ -1,0 +1,15 @@
+{
+    "name": "Nexus-VR-Character-Model",
+    "tree": {
+        "$className": "DataModel",
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "NexusVRCharacterModelLoader": {
+                "$path": "./NexusVRCharacterModelLoader.server.luau",
+                "MainModule": {
+                    "$path": "./default-standalone.project.json"
+                }
+            }
+        }
+    }
+}
