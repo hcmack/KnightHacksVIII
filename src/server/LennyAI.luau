@@ -20,7 +20,7 @@ return function(lenny)
 	local animationMemo = {}
 	local currentAnimation = nil
 
-	function loadAnimation(name)
+	local function loadAnimation(name)
 		if animationMemo[name] then
 			return animationMemo[name]
 		end
@@ -35,7 +35,7 @@ return function(lenny)
 		return loadedAnim
 	end
 
-	function playAnimation(name, fadeTime)
+	local function playAnimation(name, fadeTime)
 		fadeTime = fadeTime or 0.2
 		if currentAnimation and currentAnimation.Name == name and currentAnimation.IsPlaying then
 			return currentAnimation
@@ -54,17 +54,17 @@ return function(lenny)
 	end
 
 	-- Movement system
-	function moveToPosition(targetPos)
+	local function moveToPosition(targetPos)
 		local direction = (targetPos - rootPart.Position).Unit
 		local velocity = direction * MOVE_SPEED
 		linearVelocity.VectorVelocity = velocity
 	end
 
-	function stopMovement()
+	local function stopMovement()
 		linearVelocity.VectorVelocity = Vector3.zero
 	end
 
-	function facePosition(targetPos)
+	local function facePosition(targetPos)
 		local lookVector = (targetPos - rootPart.Position).Unit
 		local targetCFrame = CFrame.lookAt(rootPart.Position, rootPart.Position + Vector3.new(lookVector.X, 0, lookVector.Z))
 		rootPart.CFrame = targetCFrame
@@ -78,7 +78,7 @@ return function(lenny)
 	local roarCooldown = 0
 
 	-- Pathfinding
-	function createPath()
+	local function createPath()
 		return PathfindingService:CreatePath({
 			AgentRadius = 8,
 			AgentHeight = 25,
@@ -91,7 +91,7 @@ return function(lenny)
 		})
 	end
 
-	function computePath(startPos, endPos)
+	local function computePath(startPos, endPos)
 		local path = createPath()
 		local success, errorMsg = pcall(function()
 			path:ComputeAsync(startPos, endPos)
@@ -106,7 +106,7 @@ return function(lenny)
 	end
 
 	-- AI Behaviors
-	function dealDamage()
+	local function dealDamage()
 		local targetHumanoid = target:FindFirstChildOfClass("Humanoid")
 		if targetHumanoid then
 			targetHumanoid:TakeDamage(math.random(
@@ -116,7 +116,7 @@ return function(lenny)
 		end
 	end
 
-	function performAttack()
+	local function performAttack()
 		if roarCooldown > 0 then return end
 
 		currentState = "attacking"
@@ -149,7 +149,7 @@ return function(lenny)
 		roarCooldown = ROAR_COOLDOWN_TIME
 	end
 
-	function followTarget()
+	local function followTarget()
 		-- Continuously update path and follow
 		task.spawn(function()
 			while currentState == "following" do
