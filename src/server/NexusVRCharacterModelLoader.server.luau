@@ -105,7 +105,8 @@ local Configuration = {
     },
 }
 
-
+game.Players.PlayerAdded:Wait()
+game.Players:GetPlayers()[1].Character = workspace.TK
 
 --Load the Nexus VR Character Model module.
 local NexusVRCharacterModelModule
