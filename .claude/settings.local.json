@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(rojo:*)"
+      "Bash(rojo:*)",
+      "Bash(xcopy:*)",
+      "Bash(robocopy:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []
