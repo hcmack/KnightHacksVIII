@@ -9,6 +9,8 @@ return function(lenny)
 	local fireballBase = lenny:WaitForChild("Fireball")
 	fireballBase.Parent = nil
 	local fireballOffset = rootPart.CFrame:Inverse() * fireballBase.CFrame
+	
+	_G.lennies = (_G.lennies or 0) + 1
 
 	-- Constants
 	local MOVE_SPEED = 10
@@ -269,6 +271,11 @@ return function(lenny)
 			if health.Value == 0 then
 				playAnimation("idle")
 				lenny:BreakJoints()
+				_G.lennies = _G.lennies - 1
+				if _G.lennies == 0 then
+					game.Players:GetPlayers()[1].PlayerGui:WaitForChild("Screens")
+						:WaitForChild("WinScreen").Visible = true
+				end
 				break
 			end
 
