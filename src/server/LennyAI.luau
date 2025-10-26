@@ -6,15 +6,25 @@ return function(lenny)
 	local linearVelocity = lenny.RootPart:WaitForChild("LinearVelocity")
 	local health = lenny:WaitForChild("Health")
 
+	local fireballBase = lenny:WaitForChild("Fireball")
+	fireballBase.Parent = nil
+	local fireballOffset = rootPart.CFrame:Inverse() * fireballBase.CFrame
+
 	-- Constants
 	local MOVE_SPEED = 10
 	local ATTACK_RANGE = 40
-	local FOLLOW_RANGE = 500
+	local FIREBALL_RANGE = 300
+	local FIREBALL_SPEED = 100
+	local FIREBALL_PROBABILITY = 0.005
+	local FIREBALL_LIFETIME = 30
+	local FOLLOW_RANGE = 1000
 	local PATH_UPDATE_INTERVAL = 1.5
 	local ROAR_COOLDOWN_TIME = 2
 	local WAYPOINT_RADIUS = 10
 	local ATTACK_DAMAGE_MIN = 10
 	local ATTACK_DAMAGE_MAX = 20
+	local FIREBALL_DAMAGE_MIN = 10
+	local FIREBALL_DAMAGE_MAX = 20
 
 	-- Animation system
 	local animationMemo = {}
@@ -74,8 +84,50 @@ return function(lenny)
 	local target = workspace:WaitForChild("TK")
 	local targetRootPart = target:WaitForChild("HumanoidRootPart")
 
-	local currentState = "idle" -- idle, following, attacking
+	local function shootFireball(targetPos)
+		local fireball = fireballBase:Clone()
+		fireball.CanCollide = false
+		fireball.Anchored = true
+		fireball.CFrame = rootPart.CFrame * fireballOffset
+		fireball.Parent = workspace
+
+		local vel = (targetPos - fireball.Position).Unit * FIREBALL_SPEED
+
+		local con
+		con = game:GetService("RunService").Heartbeat:Connect(function(dt)
+			fireball.CFrame = CFrame.new(
+				fireball.Position + vel * dt
+			)
+		end)
+
+		task.delay(FIREBALL_LIFETIME, function()
+			con:Disconnect()
+			fireball:Remove()
+		end)
+
+		fireball.Touched:Connect(function(hit)
+			if hit.Parent == lenny then
+				return
+			end
+
+			if hit.Parent == target then
+				local targetHumanoid = target:FindFirstChildOfClass("Humanoid")
+				if targetHumanoid then
+					targetHumanoid:TakeDamage(math.random(
+						FIREBALL_DAMAGE_MIN,
+						FIREBALL_DAMAGE_MAX
+						))
+				end
+			end
+
+			fireball:Remove()
+			con:Disconnect()
+		end)
+	end
+
+	local currentState = "idle" -- idle, following, attacking, shooting
 	local roarCooldown = 0
+	local fireballCooldown = 0
 
 	-- Pathfinding
 	local function createPath()
@@ -149,6 +201,24 @@ return function(lenny)
 		roarCooldown = ROAR_COOLDOWN_TIME
 	end
 
+	local function performFireballAttack()
+		if fireballCooldown > 0 then return end
+
+		currentState = "shooting"
+		stopMovement()
+		facePosition(targetRootPart.Position)
+
+		-- Play attack animation and shoot fireball
+		playAnimation("roar", 0.1)
+		task.wait(0.3)
+
+		shootFireball(targetRootPart.Position)
+
+		task.wait(1)
+		fireballCooldown = ROAR_COOLDOWN_TIME
+		currentState = "idle"
+	end
+
 	local function followTarget()
 		-- Continuously update path and follow
 		task.spawn(function()
@@ -206,21 +276,30 @@ return function(lenny)
 			if roarCooldown > 0 then
 				roarCooldown = math.max(0, roarCooldown - 0.05)
 			end
+			if fireballCooldown > 0 then
+				fireballCooldown = math.max(0, fireballCooldown - 0.05)
+			end
 
 			if not target or not targetRootPart then continue end
 
 			local distance = (rootPart.Position - targetRootPart.Position).Magnitude
 
-			-- Simple aggressive state machine
+			-- State machine with fireball support
 			if distance <= ATTACK_RANGE then
-				-- ATTACK - Stop and attack
-				if currentState ~= "attacking" then
+				-- MELEE ATTACK - Close range
+				if currentState ~= "attacking" and currentState ~= "shooting" then
 					currentState = "attacking"
 					stopMovement()
 					task.spawn(function()
 						performAttack()
 						currentState = "idle"
 					end)
+				end
+
+			elseif distance <= FIREBALL_RANGE and math.random() < FIREBALL_PROBABILITY then
+				-- FIREBALL ATTACK - Medium range
+				if currentState == "idle" or currentState == "following" then
+					task.spawn(performFireballAttack)
 				end
 
 			elseif distance <= FOLLOW_RANGE then
@@ -241,7 +320,7 @@ return function(lenny)
 
 			else
 				-- IDLE - Too far away
-				if currentState ~= "idle" and currentState ~= "attacking" then
+				if currentState ~= "idle" and currentState ~= "attacking" and currentState ~= "shooting" then
 					currentState = "idle"
 					stopMovement()
 					playAnimation("idle")
