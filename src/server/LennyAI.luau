@@ -4,16 +4,17 @@ return function(lenny)
 
 	local rootPart = lenny:WaitForChild("HumanoidRootPart")
 	local linearVelocity = lenny.RootPart:WaitForChild("LinearVelocity")
+	local health = lenny:WaitForChild("Health")
 
 	-- Constants
-	local MOVE_SPEED = 20
+	local MOVE_SPEED = 10
 	local ATTACK_RANGE = 40
 	local FOLLOW_RANGE = 500
 	local PATH_UPDATE_INTERVAL = 1.5
 	local ROAR_COOLDOWN_TIME = 2
 	local WAYPOINT_RADIUS = 10
-	local ATTACK_DAMAGE_MIN = 30
-	local ATTACK_DAMAGE_MAX = 60
+	local ATTACK_DAMAGE_MIN = 20
+	local ATTACK_DAMAGE_MAX = 30
 
 	-- Animation system
 	local animationMemo = {}
@@ -195,6 +196,12 @@ return function(lenny)
 		playAnimation("idle")
 
 		while task.wait(0.05) do
+			if health.Value == 0 then
+				playAnimation("idle")
+				lenny:BreakJoints()
+				break
+			end
+
 			-- Update cooldowns
 			if roarCooldown > 0 then
 				roarCooldown = math.max(0, roarCooldown - 0.05)
