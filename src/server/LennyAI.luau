@@ -13,8 +13,8 @@ return function(lenny)
 	local PATH_UPDATE_INTERVAL = 1.5
 	local ROAR_COOLDOWN_TIME = 2
 	local WAYPOINT_RADIUS = 10
-	local ATTACK_DAMAGE_MIN = 20
-	local ATTACK_DAMAGE_MAX = 30
+	local ATTACK_DAMAGE_MIN = 10
+	local ATTACK_DAMAGE_MAX = 20
 
 	-- Animation system
 	local animationMemo = {}
