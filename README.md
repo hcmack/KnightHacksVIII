@@ -16,7 +16,7 @@ Epic Battles: Lenny and other kaiju enemies bring challenging fights to the city
 
 Play here: https://www.roblox.com/games/137079403527380/TK-vs-Lenny-Titan-Clash (VR headset required)
 
-[![Watch the demo](https://img.youtube.com/vi/W9mc36or6hY/maxresdefault.jpg)](https://www.youtube.com/watch?v=W9mc36or6hY)
+Watch our demo: https://youtu.be/W9mc36or6hY
 
 Made by hcmack and brianush1
 
